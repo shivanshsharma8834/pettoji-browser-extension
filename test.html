@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pettoji Test Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #pettoji-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div id="pettoji-container"></div>
+    <label style="position:fixed;top:10px;left:10px;z-index:10000;background:white;padding:4px 8px;border-radius:6px;font-size:14px;">
+        <input type="checkbox" id="showCollisionBox"> Show Collision Boxes
+    </label>
+    <div id="physics-toggle" style="position:fixed;top:50px;left:10px;z-index:10001;cursor:pointer;background:white;padding:6px 16px;border-radius:10px 10px 0 0;box-shadow:0 2px 8px #0002;font-size:15px;">
+        <span id="physics-toggle-arrow">▼</span> Shimeji Physics Controls
+    </div>
+    <div id="physics-controls" style="display:block;position:fixed;top:86px;left:10px;z-index:10000;background:white;padding:12px 16px 12px 16px;border-radius:0 0 10px 10px;box-shadow:0 2px 8px #0002;font-size:14px;min-width:260px;max-height:80vh;overflow:auto;">
+        <div><b>Shimeji Physics</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Gravity: <span id="gravity-value"></span></label><br>
+            <input type="range" id="gravity-slider" min="0.1" max="2.0" step="0.01" value="0.5">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Bounce: <span id="bounce-value"></span></label><br>
+            <input type="range" id="bounce-slider" min="0.1" max="1.0" step="0.01" value="0.4">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Ground Friction: <span id="groundfric-value"></span></label><br>
+            <input type="range" id="groundfric-slider" min="0.80" max="0.99" step="0.01" value="0.93">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Air Friction: <span id="airfric-value"></span></label><br>
+            <input type="range" id="airfric-slider" min="0.90" max="1.00" step="0.01" value="0.98">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Terminal Velocity: <span id="termvel-value"></span></label><br>
+            <input type="range" id="termvel-slider" min="2" max="20" step="0.1" value="5">
+        </div>
+        <hr>
+        <div><b>Climbing</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Climb Speed Min: <span id="climb-speed-min-value"></span></label><br>
+            <input type="range" id="climb-speed-min-slider" min="0.5" max="8" step="0.1" value="1.5">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Climb Speed Max: <span id="climb-speed-max-value"></span></label><br>
+            <input type="range" id="climb-speed-max-slider" min="0.5" max="8" step="0.1" value="4.0">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Climb Chance: <span id="climb-chance-value"></span></label><br>
+            <input type="range" id="climb-chance-slider" min="0" max="1" step="0.01" value="0.25">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Climb Timer Min: <span id="climb-timer-min-value"></span></label><br>
+            <input type="range" id="climb-timer-min-slider" min="10" max="180" step="1" value="60">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Climb Timer Max: <span id="climb-timer-max-value"></span></label><br>
+            <input type="range" id="climb-timer-max-slider" min="10" max="240" step="1" value="150">
+        </div>
+        <hr>
+        <div><b>Leaping</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Leap Chance: <span id="leap-chance-value"></span></label><br>
+            <input type="range" id="leap-chance-slider" min="0" max="0.2" step="0.001" value="0.02">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Leap X Min: <span id="leap-x-min-value"></span></label><br>
+            <input type="range" id="leap-x-min-slider" min="0" max="20" step="0.1" value="4">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Leap X Max: <span id="leap-x-max-value"></span></label><br>
+            <input type="range" id="leap-x-max-slider" min="0" max="20" step="0.1" value="8">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Leap Y Min: <span id="leap-y-min-value"></span></label><br>
+            <input type="range" id="leap-y-min-slider" min="-20" max="0" step="0.1" value="-8">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Leap Y Max: <span id="leap-y-max-value"></span></label><br>
+            <input type="range" id="leap-y-max-slider" min="-20" max="0" step="0.1" value="-4">
+        </div>
+        <hr>
+        <div><b>Sticky Wall</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Slide Speed: <span id="sticky-slide-value"></span></label><br>
+            <input type="range" id="sticky-slide-slider" min="0.1" max="5" step="0.1" value="1.2">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Timer Min: <span id="sticky-timer-min-value"></span></label><br>
+            <input type="range" id="sticky-timer-min-slider" min="10" max="180" step="1" value="60">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Timer Max: <span id="sticky-timer-max-value"></span></label><br>
+            <input type="range" id="sticky-timer-max-slider" min="10" max="240" step="1" value="150">
+        </div>
+        <hr>
+        <div><b>Throw</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Throw Sensitivity: <span id="throw-sens-value"></span></label><br>
+            <input type="range" id="throw-sens-slider" min="0.01" max="0.2" step="0.001" value="0.04">
+        </div>
+        <hr>
+        <div><b>Walking</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Walk Speed Min: <span id="walk-speed-min-value"></span></label><br>
+            <input type="range" id="walk-speed-min-slider" min="0.5" max="20" step="0.1" value="4">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Walk Speed Max: <span id="walk-speed-max-value"></span></label><br>
+            <input type="range" id="walk-speed-max-slider" min="0.5" max="20" step="0.1" value="8">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Walk Timer: <span id="walk-timer-value"></span></label><br>
+            <input type="range" id="walk-timer-slider" min="5" max="100" step="1" value="20">
+        </div>
+        <hr>
+        <div><b>Collision/Repulsion</b></div>
+        <div style="margin:8px 0 0 0;">
+            <label>Collision Margin: <span id="collision-margin-value"></span></label><br>
+            <input type="range" id="collision-margin-slider" min="0.01" max="2.0" step="0.01" value="0.9">
+        </div>
+        <div style="margin:8px 0 0 0;">
+            <label>Repulsion Force: <span id="repulsion-force-value"></span></label><br>
+            <input type="range" id="repulsion-force-slider" min="0.01" max="1.0" step="0.01" value="0.1">
+        </div>
+    </div>
+    <script>
+        // Global array to store all Shimejis
+        let shimejis = [];
+        let canvas;
+        let shimejiImg;
+        let showCollisionBox = false;
+        let GRAVITY = 0.5;
+        let BOUNCE_DAMPING = 0.4;
+        let FRICTION = 0.98;
+        let TERMINAL_VELOCITY = 5;
+        let GROUND_FRICTION = 0.93; // less friction on ground for faster walk
+        let AIR_FRICTION = 0.98;
+
+        // For projectile physics
+        let lastMouseX = 0, lastMouseY = 0, lastMouseTime = 0;
+        let prevMouseX = 0, prevMouseY = 0, prevMouseTime = 0;
+
+        // Climbing
+        let CLIMB_SPEED_MIN = 1.5;
+        let CLIMB_SPEED_MAX = 4.0;
+        let CLIMB_CHANCE = 0.25;
+        let CLIMB_TIMER_MIN = 60;
+        let CLIMB_TIMER_MAX = 150;
+
+        // Leaping
+        let LEAP_CHANCE = 0.02;
+        let LEAP_X_MIN = 4;
+        let LEAP_X_MAX = 8;
+        let LEAP_Y_MIN = -8;
+        let LEAP_Y_MAX = -4;
+
+        // Sticky wall
+        let STICKY_SLIDE_SPEED = 1.2;
+        let STICKY_TIMER_MIN = 60;
+        let STICKY_TIMER_MAX = 150;
+
+        // Throw
+        let THROW_SENSITIVITY = 0.04;
+
+        // Walking
+        let WALK_SPEED_MIN = 4;
+        let WALK_SPEED_MAX = 8;
+        let WALK_TIMER = 20;
+
+        // Collision/Repulsion
+        let COLLISION_MARGIN = 0.9;
+        let REPULSION_FORCE = 0.1;
+
+        function preload() {
+            shimejiImg = loadImage('sprite_inspirations/tomioka-laying-down.png');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkbox = document.getElementById('showCollisionBox');
+            checkbox.addEventListener('change', (e) => {
+                showCollisionBox = e.target.checked;
+            });
+            // Gravity
+            const gravitySlider = document.getElementById('gravity-slider');
+            const gravityValue = document.getElementById('gravity-value');
+            gravitySlider.value = GRAVITY;
+            gravityValue.textContent = GRAVITY;
+            gravitySlider.addEventListener('input', e => {
+                GRAVITY = parseFloat(e.target.value);
+                gravityValue.textContent = GRAVITY;
+            });
+            // Bounce
+            const bounceSlider = document.getElementById('bounce-slider');
+            const bounceValue = document.getElementById('bounce-value');
+            bounceSlider.value = BOUNCE_DAMPING;
+            bounceValue.textContent = BOUNCE_DAMPING;
+            bounceSlider.addEventListener('input', e => {
+                BOUNCE_DAMPING = parseFloat(e.target.value);
+                bounceValue.textContent = BOUNCE_DAMPING;
+            });
+            // Ground Friction
+            const groundfricSlider = document.getElementById('groundfric-slider');
+            const groundfricValue = document.getElementById('groundfric-value');
+            groundfricSlider.value = GROUND_FRICTION;
+            groundfricValue.textContent = GROUND_FRICTION;
+            groundfricSlider.addEventListener('input', e => {
+                GROUND_FRICTION = parseFloat(e.target.value);
+                groundfricValue.textContent = GROUND_FRICTION;
+            });
+            // Air Friction
+            const airfricSlider = document.getElementById('airfric-slider');
+            const airfricValue = document.getElementById('airfric-value');
+            airfricSlider.value = AIR_FRICTION;
+            airfricValue.textContent = AIR_FRICTION;
+            airfricSlider.addEventListener('input', e => {
+                AIR_FRICTION = parseFloat(e.target.value);
+                airfricValue.textContent = AIR_FRICTION;
+            });
+            // Terminal Velocity
+            const termvelSlider = document.getElementById('termvel-slider');
+            const termvelValue = document.getElementById('termvel-value');
+            termvelSlider.value = TERMINAL_VELOCITY;
+            termvelValue.textContent = TERMINAL_VELOCITY;
+            termvelSlider.addEventListener('input', e => {
+                TERMINAL_VELOCITY = parseFloat(e.target.value);
+                termvelValue.textContent = TERMINAL_VELOCITY;
+            });
+            // Climbing
+            const climbSpeedMinSlider = document.getElementById('climb-speed-min-slider');
+            const climbSpeedMinValue = document.getElementById('climb-speed-min-value');
+            climbSpeedMinSlider.value = CLIMB_SPEED_MIN;
+            climbSpeedMinValue.textContent = CLIMB_SPEED_MIN;
+            climbSpeedMinSlider.addEventListener('input', e => {
+                CLIMB_SPEED_MIN = parseFloat(e.target.value);
+                climbSpeedMinValue.textContent = CLIMB_SPEED_MIN;
+            });
+            const climbSpeedMaxSlider = document.getElementById('climb-speed-max-slider');
+            const climbSpeedMaxValue = document.getElementById('climb-speed-max-value');
+            climbSpeedMaxSlider.value = CLIMB_SPEED_MAX;
+            climbSpeedMaxValue.textContent = CLIMB_SPEED_MAX;
+            climbSpeedMaxSlider.addEventListener('input', e => {
+                CLIMB_SPEED_MAX = parseFloat(e.target.value);
+                climbSpeedMaxValue.textContent = CLIMB_SPEED_MAX;
+            });
+            const climbChanceSlider = document.getElementById('climb-chance-slider');
+            const climbChanceValue = document.getElementById('climb-chance-value');
+            climbChanceSlider.value = CLIMB_CHANCE;
+            climbChanceValue.textContent = CLIMB_CHANCE;
+            climbChanceSlider.addEventListener('input', e => {
+                CLIMB_CHANCE = parseFloat(e.target.value);
+                climbChanceValue.textContent = CLIMB_CHANCE;
+            });
+            const climbTimerMinSlider = document.getElementById('climb-timer-min-slider');
+            const climbTimerMinValue = document.getElementById('climb-timer-min-value');
+            climbTimerMinSlider.value = CLIMB_TIMER_MIN;
+            climbTimerMinValue.textContent = CLIMB_TIMER_MIN;
+            climbTimerMinSlider.addEventListener('input', e => {
+                CLIMB_TIMER_MIN = parseInt(e.target.value);
+                climbTimerMinValue.textContent = CLIMB_TIMER_MIN;
+            });
+            const climbTimerMaxSlider = document.getElementById('climb-timer-max-slider');
+            const climbTimerMaxValue = document.getElementById('climb-timer-max-value');
+            climbTimerMaxSlider.value = CLIMB_TIMER_MAX;
+            climbTimerMaxValue.textContent = CLIMB_TIMER_MAX;
+            climbTimerMaxSlider.addEventListener('input', e => {
+                CLIMB_TIMER_MAX = parseInt(e.target.value);
+                climbTimerMaxValue.textContent = CLIMB_TIMER_MAX;
+            });
+            // Leaping
+            const leapChanceSlider = document.getElementById('leap-chance-slider');
+            const leapChanceValue = document.getElementById('leap-chance-value');
+            leapChanceSlider.value = LEAP_CHANCE;
+            leapChanceValue.textContent = LEAP_CHANCE;
+            leapChanceSlider.addEventListener('input', e => {
+                LEAP_CHANCE = parseFloat(e.target.value);
+                leapChanceValue.textContent = LEAP_CHANCE;
+            });
+            const leapXMinSlider = document.getElementById('leap-x-min-slider');
+            const leapXMinValue = document.getElementById('leap-x-min-value');
+            leapXMinSlider.value = LEAP_X_MIN;
+            leapXMinValue.textContent = LEAP_X_MIN;
+            leapXMinSlider.addEventListener('input', e => {
+                LEAP_X_MIN = parseFloat(e.target.value);
+                leapXMinValue.textContent = LEAP_X_MIN;
+            });
+            const leapXMaxSlider = document.getElementById('leap-x-max-slider');
+            const leapXMaxValue = document.getElementById('leap-x-max-value');
+            leapXMaxSlider.value = LEAP_X_MAX;
+            leapXMaxValue.textContent = LEAP_X_MAX;
+            leapXMaxSlider.addEventListener('input', e => {
+                LEAP_X_MAX = parseFloat(e.target.value);
+                leapXMaxValue.textContent = LEAP_X_MAX;
+            });
+            const leapYMinSlider = document.getElementById('leap-y-min-slider');
+            const leapYMinValue = document.getElementById('leap-y-min-value');
+            leapYMinSlider.value = LEAP_Y_MIN;
+            leapYMinValue.textContent = LEAP_Y_MIN;
+            leapYMinSlider.addEventListener('input', e => {
+                LEAP_Y_MIN = parseFloat(e.target.value);
+                leapYMinValue.textContent = LEAP_Y_MIN;
+            });
+            const leapYMaxSlider = document.getElementById('leap-y-max-slider');
+            const leapYMaxValue = document.getElementById('leap-y-max-value');
+            leapYMaxSlider.value = LEAP_Y_MAX;
+            leapYMaxValue.textContent = LEAP_Y_MAX;
+            leapYMaxSlider.addEventListener('input', e => {
+                LEAP_Y_MAX = parseFloat(e.target.value);
+                leapYMaxValue.textContent = LEAP_Y_MAX;
+            });
+            // Sticky wall
+            const stickySlideSlider = document.getElementById('sticky-slide-slider');
+            const stickySlideValue = document.getElementById('sticky-slide-value');
+            stickySlideSlider.value = STICKY_SLIDE_SPEED;
+            stickySlideValue.textContent = STICKY_SLIDE_SPEED;
+            stickySlideSlider.addEventListener('input', e => {
+                STICKY_SLIDE_SPEED = parseFloat(e.target.value);
+                stickySlideValue.textContent = STICKY_SLIDE_SPEED;
+            });
+            const stickyTimerMinSlider = document.getElementById('sticky-timer-min-slider');
+            const stickyTimerMinValue = document.getElementById('sticky-timer-min-value');
+            stickyTimerMinSlider.value = STICKY_TIMER_MIN;
+            stickyTimerMinValue.textContent = STICKY_TIMER_MIN;
+            stickyTimerMinSlider.addEventListener('input', e => {
+                STICKY_TIMER_MIN = parseInt(e.target.value);
+                stickyTimerMinValue.textContent = STICKY_TIMER_MIN;
+            });
+            const stickyTimerMaxSlider = document.getElementById('sticky-timer-max-slider');
+            const stickyTimerMaxValue = document.getElementById('sticky-timer-max-value');
+            stickyTimerMaxSlider.value = STICKY_TIMER_MAX;
+            stickyTimerMaxValue.textContent = STICKY_TIMER_MAX;
+            stickyTimerMaxSlider.addEventListener('input', e => {
+                STICKY_TIMER_MAX = parseInt(e.target.value);
+                stickyTimerMaxValue.textContent = STICKY_TIMER_MAX;
+            });
+            // Throw
+            const throwSensSlider = document.getElementById('throw-sens-slider');
+            const throwSensValue = document.getElementById('throw-sens-value');
+            throwSensSlider.value = THROW_SENSITIVITY;
+            throwSensValue.textContent = THROW_SENSITIVITY;
+            throwSensSlider.addEventListener('input', e => {
+                THROW_SENSITIVITY = parseFloat(e.target.value);
+                throwSensValue.textContent = THROW_SENSITIVITY;
+            });
+            // Walking
+            const walkSpeedMinSlider = document.getElementById('walk-speed-min-slider');
+            const walkSpeedMinValue = document.getElementById('walk-speed-min-value');
+            walkSpeedMinSlider.value = WALK_SPEED_MIN;
+            walkSpeedMinValue.textContent = WALK_SPEED_MIN;
+            walkSpeedMinSlider.addEventListener('input', e => {
+                WALK_SPEED_MIN = parseFloat(e.target.value);
+                walkSpeedMinValue.textContent = WALK_SPEED_MIN;
+            });
+            const walkSpeedMaxSlider = document.getElementById('walk-speed-max-slider');
+            const walkSpeedMaxValue = document.getElementById('walk-speed-max-value');
+            walkSpeedMaxSlider.value = WALK_SPEED_MAX;
+            walkSpeedMaxValue.textContent = WALK_SPEED_MAX;
+            walkSpeedMaxSlider.addEventListener('input', e => {
+                WALK_SPEED_MAX = parseFloat(e.target.value);
+                walkSpeedMaxValue.textContent = WALK_SPEED_MAX;
+            });
+            const walkTimerSlider = document.getElementById('walk-timer-slider');
+            const walkTimerValue = document.getElementById('walk-timer-value');
+            walkTimerSlider.value = WALK_TIMER;
+            walkTimerValue.textContent = WALK_TIMER;
+            walkTimerSlider.addEventListener('input', e => {
+                WALK_TIMER = parseInt(e.target.value);
+                walkTimerValue.textContent = WALK_TIMER;
+            });
+            // Collision/Repulsion
+            const collisionMarginSlider = document.getElementById('collision-margin-slider');
+            const collisionMarginValue = document.getElementById('collision-margin-value');
+            collisionMarginSlider.value = COLLISION_MARGIN;
+            collisionMarginValue.textContent = COLLISION_MARGIN;
+            collisionMarginSlider.addEventListener('input', e => {
+                COLLISION_MARGIN = parseFloat(e.target.value);
+                collisionMarginValue.textContent = COLLISION_MARGIN;
+            });
+            const repulsionForceSlider = document.getElementById('repulsion-force-slider');
+            const repulsionForceValue = document.getElementById('repulsion-force-value');
+            repulsionForceSlider.value = REPULSION_FORCE;
+            repulsionForceValue.textContent = REPULSION_FORCE;
+            repulsionForceSlider.addEventListener('input', e => {
+                REPULSION_FORCE = parseFloat(e.target.value);
+                repulsionForceValue.textContent = REPULSION_FORCE;
+            });
+            // Dropdown toggle for physics controls
+            const toggle = document.getElementById('physics-toggle');
+            const controls = document.getElementById('physics-controls');
+            const arrow = document.getElementById('physics-toggle-arrow');
+            toggle.addEventListener('click', () => {
+                if (controls.style.display === 'none') {
+                    controls.style.display = 'block';
+                    arrow.textContent = '▼';
+                } else {
+                    controls.style.display = 'none';
+                    arrow.textContent = '▲';
+                }
+            });
+        });
+
+        class Shimeji {
+            constructor() {
+                this.x = Math.random() * (window.innerWidth - 50);
+                this.y = Math.random() * (window.innerHeight - 50);
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.isDragging = false;
+                this.dragOffsetX = 0;
+                this.dragOffsetY = 0;
+                this.isMoving = true;
+                this.size = 100; // Adjusted for image size
+                this.changeDirTimer = 0;
+                // Climbing state
+                this.climbing = false;
+                this.climbTimer = 0;
+                this.climbSide = null; // 'left' or 'right'
+                this.climbSpeed = 2.5; // default, will be randomized
+                // Sticky wall state
+                this.stuckToWall = false;
+                this.stuckSide = null; // 'left' or 'right'
+                this.stuckTimer = 0;
+            }
+
+            getCollisionBox() {
+                // 80% width, 60% height, centered
+                const w = this.size * 0.8;
+                const h = this.size * 0.6;
+                const margin = 0.9;
+                const mw = w * (1 + margin);
+                const mh = h * (1 + margin);
+                return {
+                    main: {
+                        x: this.x + this.size/2 - w/2,
+                        y: this.y + this.size/2 - h/2,
+                        w: w,
+                        h: h,
+                        r: 18
+                    },
+                    margin: {
+                        x: this.x + this.size/2 - mw/2,
+                        y: this.y + this.size/2 - mh/2,
+                        w: mw,
+                        h: mh,
+                        r: 22
+                    }
+                };
+            }
+
+            draw() {
+                if (shimejiImg) {
+                    image(shimejiImg, this.x, this.y, this.size, this.size);
+                }
+                if (showCollisionBox) {
+                    const box = this.getCollisionBox();
+                    // Draw soft margin (dashed or semi-transparent orange)
+                    push();
+                    noFill();
+                    stroke(255, 140, 0, 120);
+                    strokeWeight(2);
+                    drawingContext.setLineDash([8, 6]);
+                    rect(box.margin.x, box.margin.y, box.margin.w, box.margin.h, box.margin.r);
+                    drawingContext.setLineDash([]);
+                    // Draw main collision box (solid red)
+                    stroke(255,0,0,180);
+                    strokeWeight(2);
+                    rect(box.main.x, box.main.y, box.main.w, box.main.h, box.main.r);
+                    pop();
+                }
+            }
+
+            update() {
+                if (!this.isDragging && this.isMoving) {
+                    // Sticky wall behavior
+                    if (this.stuckToWall) {
+                        this.velocityX = 0;
+                        this.velocityY = 1.2; // Slide down slowly
+                        if (this.stuckSide === 'left') this.x = 0;
+                        if (this.stuckSide === 'right') this.x = window.innerWidth - this.size;
+                        this.y += this.velocityY;
+                        this.stuckTimer--;
+                        // Unstick if timer runs out or reaches bottom
+                        if (this.stuckTimer <= 0 || this.y >= window.innerHeight - this.size) {
+                            this.stuckToWall = false;
+                            this.stuckSide = null;
+                            this.stuckTimer = 0;
+                            this.velocityY = 0;
+                        }
+                        // Stay within bottom bound
+                        if (this.y > window.innerHeight - this.size) this.y = window.innerHeight - this.size;
+                        return;
+                    }
+
+                    // If climbing
+                    if (this.climbing) {
+                        this.velocityX = 0;
+                        this.velocityY = -this.climbSpeed; // Variable climb speed
+                        if (this.climbSide === 'left') this.x = 0;
+                        if (this.climbSide === 'right') this.x = window.innerWidth - this.size;
+                        this.y += this.velocityY;
+                        this.climbTimer--;
+                        // Random leap off wall
+                        if (Math.random() < 0.02) { // 2% chance per frame
+                            this.climbing = false;
+                            this.velocityY = random(-8, -4); // Leap upward
+                            if (this.climbSide === 'left') {
+                                this.velocityX = random(4, 8); // Leap right
+                            } else {
+                                this.velocityX = random(-8, -4); // Leap left
+                            }
+                        }
+                        // Let go and fall after timer or if at top
+                        if (this.climbTimer <= 0 || this.y < 0) {
+                            this.climbing = false;
+                            this.velocityY = 0;
+                        }
+                        // Stay within top bound
+                        if (this.y < 0) this.y = 0;
+                        // No gravity or random movement while climbing
+                        return;
+                    }
+
+                    // Apply gravity
+                    this.velocityY += GRAVITY;
+                    if (this.velocityY > TERMINAL_VELOCITY) this.velocityY = TERMINAL_VELOCITY;
+
+                    // Check if on ground
+                    const onGround = this.y >= window.innerHeight - this.size;
+
+                    // Faster walking and less friction on ground
+                    if (onGround) {
+                        if (this.changeDirTimer <= 0) {
+                            this.velocityX = (Math.random() - 0.5) * 8; // Faster walk
+                            this.changeDirTimer = 20; // Change direction more often
+                        } else {
+                            this.changeDirTimer--;
+                        }
+                        this.velocityY = 0;
+                        this.y = window.innerHeight - this.size;
+                        this.x += this.velocityX;
+                        this.velocityX *= GROUND_FRICTION;
+
+                        // Check for climbing opportunity at border using soft margin
+                        const softBox = this.getCollisionBox().margin;
+                        if (
+                            (softBox.x <= 0 || (softBox.x + softBox.w) >= window.innerWidth)
+                        ) {
+                            if (Math.random() < 0.25) { // 25% chance to climb
+                                this.climbing = true;
+                                this.climbTimer = Math.floor(60 + Math.random() * 90); // 1-2.5 seconds
+                                this.climbSide = (softBox.x <= 0) ? 'left' : 'right';
+                                this.climbSpeed = random(1.5, 4.0);
+                            }
+                        }
+                    } else {
+                        // In air: projectile physics, let velocityX and velocityY update naturally
+                        this.x += this.velocityX;
+                        this.y += this.velocityY;
+                        this.velocityY *= AIR_FRICTION;
+                        this.velocityX *= AIR_FRICTION;
+                    }
+
+                    // Land and bounce (still allow bounce if falling hard)
+                    if (this.y > window.innerHeight - this.size) {
+                        this.y = window.innerHeight - this.size;
+                        if (Math.abs(this.velocityY) > 1) {
+                            this.velocityY = -this.velocityY * BOUNCE_DAMPING;
+                        } else {
+                            this.velocityY = 0;
+                        }
+                    }
+
+                    // Keep within horizontal bounds
+                    this.x = Math.max(0, Math.min(window.innerWidth - this.size, this.x));
+                }
+            }
+
+            repelFrom(other) {
+                const boxA = this.getCollisionBox();
+                const a = boxA.margin; // Use margin for soft repulsion
+                const b = other.getCollisionBox().margin;
+                // Check for overlap (AABB)
+                if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) {
+                    // Calculate center points
+                    const ax = a.x + a.w/2;
+                    const ay = a.y + a.h/2;
+                    const bx = b.x + b.w/2;
+                    const by = b.y + b.h/2;
+                    // Direction vector
+                    let dx = ax - bx;
+                    let dy = ay - by;
+                    let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                    // Soft repulsion force
+                    let overlap = (a.w + b.w)/2 - Math.abs(ax - bx);
+                    overlap = Math.max(overlap, 0);
+                    let force = 0.1 * overlap; // Softness
+                    dx /= dist;
+                    dy /= dist;
+                    if (!this.isDragging) {
+                        this.x += dx * force;
+                        this.y += dy * force;
+                    }
+                }
+            }
+
+            isMouseOver() {
+                // Use main collision box for mouse detection
+                const box = this.getCollisionBox().main;
+                return (
+                    mouseX >= box.x &&
+                    mouseX <= box.x + box.w &&
+                    mouseY >= box.y &&
+                    mouseY <= box.y + box.h
+                );
+            }
+
+            startDragging() {
+                if (this.isMouseOver()) {
+                    // Store offset from top-left of Shimeji
+                    this.isDragging = true;
+                    this.dragOffsetX = mouseX - this.x;
+                    this.dragOffsetY = mouseY - this.y;
+                    return true;
+                }
+                return false;
+            }
+
+            drag() {
+                if (this.isDragging) {
+                    this.x = mouseX - this.dragOffsetX;
+                    this.y = mouseY - this.dragOffsetY;
+                }
+            }
+
+            stopDragging() {
+                this.isDragging = false;
+                // Check for sticky wall throw
+                const throwThreshold = 6;
+                if (!this.stuckToWall && !this.climbing && Math.abs(this.velocityX) > throwThreshold) {
+                    // If near left or right border after throw, stick to wall
+                    if (this.x <= 0) {
+                        this.stuckToWall = true;
+                        this.stuckSide = 'left';
+                        this.stuckTimer = Math.floor(60 + Math.random() * 90); // 1-2.5 seconds
+                        this.velocityX = 0;
+                        this.velocityY = 0;
+                    } else if (this.x >= window.innerWidth - this.size) {
+                        this.stuckToWall = true;
+                        this.stuckSide = 'right';
+                        this.stuckTimer = Math.floor(60 + Math.random() * 90);
+                        this.velocityX = 0;
+                        this.velocityY = 0;
+                    }
+                }
+            }
+
+            toggleMovement() {
+                this.isMoving = !this.isMoving;
+            }
+        }
+
+        function setup() {
+            canvas = createCanvas(window.innerWidth, window.innerHeight);
+            canvas.parent('pettoji-container');
+            canvas.style('pointer-events', 'auto');
+            background(0, 0, 0, 0);
+            
+            // Add the first Shimeji
+            shimejis.push(new Shimeji());
+        }
+
+        function draw() {
+            clear();
+            // Repel all pairs
+            for (let i = 0; i < shimejis.length; i++) {
+                for (let j = i + 1; j < shimejis.length; j++) {
+                    shimejis[i].repelFrom(shimejis[j]);
+                    shimejis[j].repelFrom(shimejis[i]);
+                }
+            }
+            // Update and draw all Shimejis
+            for (let shimeji of shimejis) {
+                shimeji.update();
+                shimeji.draw();
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(window.innerWidth, window.innerHeight);
+        }
+
+        function mousePressed() {
+            for (let i = shimejis.length - 1; i >= 0; i--) {
+                if (shimejis[i].isMouseOver()) {
+                    shimejis[i].startDragging();
+                    // Bring the dragged shimeji to the top
+                    const dragged = shimejis.splice(i, 1)[0];
+                    shimejis.push(dragged);
+                    // Initialize mouse tracking for projectile
+                    lastMouseX = prevMouseX = mouseX;
+                    lastMouseY = prevMouseY = mouseY;
+                    lastMouseTime = prevMouseTime = millis();
+                    break;
+                }
+            }
+        }
+
+        function mouseDragged() {
+            for (let shimeji of shimejis) {
+                shimeji.drag();
+            }
+            // Track mouse movement for projectile
+            prevMouseX = lastMouseX;
+            prevMouseY = lastMouseY;
+            prevMouseTime = lastMouseTime;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+            lastMouseTime = millis();
+        }
+
+        function mouseReleased() {
+            for (let shimeji of shimejis) {
+                if (shimeji.isDragging) {
+                    // Calculate projectile velocity
+                    let dt = (lastMouseTime - prevMouseTime) / 1000.0;
+                    if (dt > 0) {
+                        let vx = (lastMouseX - prevMouseX) / dt;
+                        let vy = (lastMouseY - prevMouseY) / dt;
+                        // Scale down for more natural throw
+                        shimeji.velocityX = vx * 0.04;
+                        shimeji.velocityY = vy * 0.04;
+                    }
+                    shimeji.stopDragging();
+                }
+            }
+        }
+
+        // Add keyboard controls for testing
+        function keyPressed() {
+            if (key === 'a') {
+                shimejis.push(new Shimeji());
+            } else if (key === 'r' && shimejis.length > 0) {
+                shimejis.pop();
+            } else if (key === 'm') {
+                shimejis.forEach(shimeji => shimeji.toggleMovement());
+            }
+        }
+    </script>
+</body>
+</html> 
