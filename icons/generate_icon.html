@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Icon</title>
+</head>
+<body>
+    <canvas id="canvas" width="16" height="16"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create an image from the SVG
+        const img = new Image();
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0);
+            // Convert to PNG and download
+            const link = document.createElement('a');
+            link.download = 'icon16.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+        img.src = 'icon.svg';
+    </script>
+</body>
+</html> 

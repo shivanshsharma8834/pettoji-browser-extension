@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <!-- Main face circle -->
+    <circle cx="8" cy="8" r="7" fill="#ffd93d" stroke="#000" stroke-width="0.5"/>
+    
+    <!-- Eyes -->
+    <circle cx="5.5" cy="6" r="1" fill="#000"/>
+    <circle cx="10.5" cy="6" r="1" fill="#000"/>
+    
+    <!-- Smile -->
+    <path d="M5 9.5 Q8 12 11 9.5" stroke="#000" stroke-width="0.8" fill="none"/>
+    
+    <!-- Blush -->
+    <circle cx="4" cy="8" r="0.8" fill="#ff6b6b" opacity="0.6"/>
+    <circle cx="12" cy="8" r="0.8" fill="#ff6b6b" opacity="0.6"/>
+</svg> 

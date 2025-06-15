@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pettoji Controls</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+        }
+        .popup-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        .popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        .popup-button {
+            background-color: #ffd93d;
+            color: #000;
+            padding: 8px 16px;
+            border: 2px solid #000;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+        .popup-button:hover {
+            background-color: #ffe066;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-container">
+        <h1 class="popup-title">Pettoji Controls</h1>
+        <div class="controls">
+            <button class="popup-button" id="addShimeji">Add Shimeji</button>
+            <button class="popup-button" id="removeShimeji">Remove Shimeji</button>
+            <button class="popup-button" id="toggleMovement">Toggle Movement</button>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html> 

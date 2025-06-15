@@ -1,0 +1,45 @@
+.shimeji {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    background-color: #ff6b6b;
+    border-radius: 50%;
+    cursor: move;
+    user-select: none;
+    z-index: 9999;
+    transition: transform 0.1s ease-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.shimeji:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Popup styles */
+.popup-container {
+    width: 300px;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.popup-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.3s;
+}
+
+.popup-button:hover {
+    background-color: #45a049;
+} 
